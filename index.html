@@ -158,6 +158,12 @@
             transform: translateY(-1px);
         }
 
+        button:disabled {
+            background: #700000;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .privacy {
             margin-top: 16px;
             color: #888;
@@ -225,6 +231,10 @@
             border-top: 1px solid #2c0000;
         }
 
+        #hidden_iframe {
+            display: none;
+        }
+
         @media (max-width: 600px) {
             main {
                 padding-top: 45px;
@@ -270,23 +280,34 @@
             the RedBox closed test.
         </div>
 
-        <form id="testerForm">
+        <form
+            id="testerForm"
+            action="https://docs.google.com/forms/d/e/1FAIpQLSc-knRyDOSAwc9hWN2V1xN1mQt034foOr7XUdb35QmQld4qXA/formResponse"
+            method="POST"
+            target="hidden_iframe"
+        >
 
             <label for="email">Google Play email address</label>
 
             <input
                 type="email"
                 id="email"
-                name="email"
+                name="entry.2008811090"
                 placeholder="example@gmail.com"
                 required
             >
 
-            <button type="submit">
+            <button id="registerButton" type="submit">
                 Register as Tester
             </button>
 
         </form>
+
+        <iframe
+            name="hidden_iframe"
+            id="hidden_iframe"
+            title="Google Forms submission"
+        ></iframe>
 
         <div id="message"></div>
 
@@ -339,18 +360,18 @@
 </footer>
 
 <script>
-
     const form = document.getElementById("testerForm");
     const message = document.getElementById("message");
+    const registerButton = document.getElementById("registerButton");
+
+    let submitted = false;
 
     form.addEventListener("submit", function(event) {
 
-        event.preventDefault();
-
-        const email =
-            document.getElementById("email").value.trim();
+        const email = document.getElementById("email").value.trim();
 
         if (!email) {
+            event.preventDefault();
 
             message.className = "error";
             message.textContent =
@@ -359,14 +380,32 @@
             return;
         }
 
-        message.className = "success";
+        submitted = true;
 
-        message.innerHTML =
-            "✓ Registration form is working!<br><br>" +
-            "The registration storage system will be connected next.";
+        registerButton.disabled = true;
+        registerButton.textContent = "Registering...";
 
+        message.style.display = "none";
     });
 
+    document.getElementById("hidden_iframe").addEventListener("load", function() {
+
+        if (!submitted) {
+            return;
+        }
+
+        submitted = false;
+
+        message.className = "success";
+        message.innerHTML =
+            "✓ Registration submitted!<br><br>" +
+            "Your Google Play email has been sent to the RedBox closed testing registration list.";
+
+        form.reset();
+
+        registerButton.disabled = false;
+        registerButton.textContent = "Register as Tester";
+    });
 </script>
 
 </body>
